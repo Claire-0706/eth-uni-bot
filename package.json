@@ -1,0 +1,22 @@
+{
+  "name": "eth-uni-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:eth": "node --loader ts-node/esm src/index-mainnet.ts",
+    "start:unichain": "node --loader ts-node/esm src/index-unichain.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "ethers": "^5.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
