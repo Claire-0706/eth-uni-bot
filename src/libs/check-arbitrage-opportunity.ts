@@ -20,9 +20,6 @@ export async function checkArbitrageOpportunity(
 ): Promise<void> {
   // amount0 uni, amount1 weth
   // 判断是否为大额交易
-  const minAmount0 = Number(minCheckAmount0); // 人类单位，如 1000 UNI
-  const recentAmount0 = Number(recentCheckAmount0); // 也是 UNI
-  const intervalTime = Number(intervalCheckTime);
 
   const config = chainConfig[compareWithKey];
   if (!config) throw new Error(`无效链标识: ${compareWithKey}`);
@@ -30,9 +27,9 @@ export async function checkArbitrageOpportunity(
   const token0Decimals = config.token0Decimals;
 
   const currentAmount0 = Math.abs(Number(amount0) / 10 ** token0Decimals);
-  if (currentAmount0 < minAmount0) {
+  if (currentAmount0 < minCheckAmount0) {
     const recentLogs = await redis.lrange(`${currentRedisKey}:history`, 0, 10);
-    const fiveMinutesAgo = Date.now() - intervalTime;
+    const fiveMinutesAgo = Date.now() - intervalCheckTime;
     let sumAmount0 = currentAmount0;
 
     for (const raw of recentLogs) {
@@ -45,7 +42,7 @@ export async function checkArbitrageOpportunity(
       } catch {}
     }
 
-    if (sumAmount0 < recentAmount0) {
+    if (sumAmount0 < recentCheckAmount0) {
       return;
     }
   }

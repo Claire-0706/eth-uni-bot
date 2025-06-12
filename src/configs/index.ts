@@ -10,6 +10,7 @@ export const ALCHEMY_MAINNET_URL = process.env.ALCHEMY_MAINNET_URL;
 export const ALCHEMY_UNICHAIN_URL = process.env.ALCHEMY_UNICHAIN_URL;
 
 export const ALCHEMY_MAINNET_WSS_URL = process.env.ALCHEMY_MAINNET_WSS_URL;
+export const ALCHEMY_UNICHAIN_WSS_URL = process.env.ALCHEMY_UNICHAIN_WSS_URL;
 
 export const REDIS_URL = "redis://localhost:6379";
 export const redisLatestExp = 3600;
