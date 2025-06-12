@@ -1,5 +1,5 @@
 import { createPublicClient, webSocket, getAbiItem, AbiEvent } from "viem";
-import { mainnet, unichain } from "viem/chains";
+import { unichain } from "viem/chains";
 import { UNISWAP_V3_POOL_ABI } from "./configs/abi";
 import { handleLogs } from "./libs/handle-logs";
 import {
@@ -17,7 +17,9 @@ function startWatcher() {
   isRestarting = true;
 
   const transport = webSocket(ALCHEMY_UNICHAIN_WSS_URL, {
-    retryDelay: 3000,
+    methods: {
+      include: ["eth_subscribe", "eth_unsubscribe"],
+    },
   });
 
   const client = createPublicClient({
@@ -32,13 +34,19 @@ function startWatcher() {
 
   stopWatcher = client.watchEvent({
     address: config.pool,
-    event: getAbiItem({ abi: UNISWAP_V3_POOL_ABI, name: "Swap" }) as AbiEvent,
+    event: getAbiItem({
+      abi: UNISWAP_V3_POOL_ABI,
+      name: "Swap",
+    }) as AbiEvent,
     onLogs: handleLogs(unichainRedisKey, mainnetRedisKey),
     onError: (err) => {
       console.error("监听出错:", err);
       try {
         stopWatcher?.();
-      } catch (_) {}
+      } catch (err) {
+        console.error("关闭 watcher 失败，准备退出进程:", err);
+        process.exit(1); // 让 pm2 检测并重启
+      }
 
       console.log("3 秒后重启监听...");
       setTimeout(() => {

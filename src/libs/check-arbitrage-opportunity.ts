@@ -25,6 +25,7 @@ export async function checkArbitrageOpportunity(
   if (!config) throw new Error(`无效链标识: ${compareWithKey}`);
 
   const token0Decimals = config.token0Decimals;
+  const token1Decimals = config.token1Decimals;
 
   const currentAmount0 = Math.abs(Number(amount0) / 10 ** token0Decimals);
   if (currentAmount0 < minCheckAmount0) {
@@ -47,7 +48,11 @@ export async function checkArbitrageOpportunity(
     }
   }
   // 比较价格
-  const price = Math.abs(Number(amount1) / Number(amount0)); // 当前池子的价格
+  const price = Math.abs(
+    Number(amount1) /
+      10 ** token1Decimals /
+      (Number(amount0) / 10 ** token0Decimals)
+  ); // 当前池子的价格
 
   try {
     let comparePrice: number;
@@ -57,9 +62,18 @@ export async function checkArbitrageOpportunity(
       try {
         comparePrice = await fetchChainPrice(compareWithKey);
 
+        const amount0 = 1 * 10 ** token0Decimals;
+        const amount1 = comparePrice * amount0;
+        
+        // unichain 跟 mainnet 链 amount0 amount1 相反
+        comparePrice = 1 / comparePrice;
+
         redis.set(
           `${compareWithKey}:latest`,
-          JSON.stringify({ amount0: 1, amount1: 1 / comparePrice }),
+          JSON.stringify({
+            amount0,
+            amount1,
+          }),
           "EX",
           redisLatestExp
         );
@@ -69,11 +83,18 @@ export async function checkArbitrageOpportunity(
       }
     } else {
       const compareLogs = JSON.parse(compareRaw);
-      comparePrice = Math.abs(compareLogs.amount1 / compareLogs.amount0);
+      // unichain 跟 mainnet 链 amount0 amount1 相反
+      comparePrice = Math.abs(
+        Number(compareLogs.amount0) /
+          10 ** token0Decimals /
+          (Number(compareLogs.amount1) / 10 ** token1Decimals)
+      );
     }
 
     const diff = Math.abs(price - comparePrice);
     const diffRate = diff / Math.min(price, comparePrice);
+
+    console.log(`price:${price}----- comparePrice:${comparePrice}`);
 
     if (diffRate > arbitrageDiffThreshold) {
       console.log(`发现套利机会！${diffRate * 100}%`);

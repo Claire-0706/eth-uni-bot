@@ -15,7 +15,7 @@ export const ALCHEMY_UNICHAIN_WSS_URL = process.env.ALCHEMY_UNICHAIN_WSS_URL;
 export const REDIS_URL = "redis://localhost:6379";
 export const redisLatestExp = 3600;
 
-export const minCheckAmount0 = 1000;
+export const minCheckAmount0 = 0;
 export const recentCheckAmount0 = 1000;
 export const intervalCheckTime = 300000; // 5分钟
 
