@@ -27,8 +27,8 @@ function startWatcher() {
 
   console.log("启动监听 Uniswap V3 UNI/WETH Swap 事件");
 
-  const config = chainConfig[mainnetRedisKey];
-  if (!config) throw new Error(`无效链标识: ${mainnetRedisKey}`);
+  const config = chainConfig[unichainRedisKey];
+  if (!config) throw new Error(`无效链标识: ${unichainRedisKey}`);
 
   stopWatcher = client.watchEvent({
     address: config.pool,
